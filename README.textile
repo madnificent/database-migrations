@@ -12,27 +12,19 @@ I use the current unix system time to name my migrations.  You may use any numbe
 
 First create the migrations for your system and write them in your source.  To easen the burden, there is a package available to do this work in.  You may however prefer to make one of your own.
 
-<code>
-<pre>
-(in-package :migration-user)
-
-(setf *db-connection-parameters* '("database-name" "database-user" "database-password" "hostname-or-server-connection-path"))
-
-(def-query-migration 1239884301 "create users"
-  :execute "CREATE TABLE application_user ( user_id SERIAL PRIMARY KEY, name text, email text )"
-  :revert  "DROP TABLE application_user")
-(def-query-migration 1239884351 "create books"
-  :execute "CREATE TABLE book ( book_id SERIAL PRIMARY KEY, owner_id INTEGER REFERENCES application_user, title text, description text )"
-  :revert  "DROP TABLE book")
-</pre>
-</code>
+  (in-package :migration-user)
+  
+  (setf *db-connection-parameters* '("database-name" "database-user" "database-password" "hostname-or-server-connection-path"))
+  
+  (def-query-migration 1239884301 "create users"
+    :execute "CREATE TABLE application_user ( user_id SERIAL PRIMARY KEY, name text, email text )"
+    :revert  "DROP TABLE application_user")
+  (def-query-migration 1239884351 "create books"
+    :execute "CREATE TABLE book ( book_id SERIAL PRIMARY KEY, owner_id INTEGER REFERENCES application_user, title text, description text )"
+    :revert  "DROP TABLE book")
 
 After loading this source, you can easily update the database in the REPL.  Each of these commands take a version, so you're able to specify how far you want the migration to be done.  The given version is always inclusive (thus downgrade will remove all higher-numbered migrations including that one, and upgrade will add all lower-numbered versions including that one).
 
-<code>
-<pre>
-(migration-user::upgrade) ;; this will upgrade the database to the latest version available
-(migration-user::downgrade) ;; this will downgrade the database to the first version
-</pre>
-</code>
+  (migration-user::upgrade) ;; this will upgrade the database to the latest version available
+  (migration-user::downgrade) ;; this will downgrade the database to the first version
 
