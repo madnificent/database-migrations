@@ -1,4 +1,4 @@
-(defpackage :database-versioning
+(defpackage :database-migrations
   (:use :common-lisp
 	:postmodern)
   (:export :*db-connection-parameters*
@@ -11,9 +11,9 @@
 
 (defpackage :migration-user
   (:use :common-lisp
-	:database-versioning))
+	:database-migrations))
 
-(in-package :database-versioning)
+(in-package :database-migrations)
 
 (defparameter *migrations* nil
   "Contains all the migrations that can be executed")
