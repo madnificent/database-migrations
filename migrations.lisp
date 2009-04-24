@@ -108,7 +108,7 @@ This is something you should never really need to run."
        (if (funcall (if revert '>= '<=) from (migration-number migration) to)
 	   (run-migration migration revert nil))))
 
-(defmacro downgrade (&optional (version 0))
+(defun downgrade (&optional (version 0))
   "Downgrades the database to the given version.
 This will revert all migrations that have been run with a migration-number greater than <version>.
 The migrations are downgraded from the greatest available migration-number, to the lowest.
@@ -118,7 +118,7 @@ When no version is given, 0 is assumed as that will clear the database (migratio
 		  (schema-has-migration-p migration))
 	 (run-migration migration T T))))
 
-(defmacro upgrade (&optional (version nil))
+(defun upgrade (&optional (version nil))
   "Upgrades the database to the given version.
 This will run all migrations that haven't been ran yet and that have a smaller migration-number than <version>.
 The migrations are upgraded from the smallest available migration-number to the largest available one (with a cap on <version>).
