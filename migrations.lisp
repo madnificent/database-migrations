@@ -19,8 +19,7 @@
   "Contains all the migrations that can be executed")
 
 (defparameter *db-connection-parameters* '("database" "user" "password" "host")
-  "Set the connection settings here, is it will be used to connect to the needed database")
-(setf *db-connection-parameters* '("mycar_development" "mycar_dev" "mycar" "localhost"))
+  "Set the connection settings here, is it will be used to connect to the correct database")
 
 (defmacro with-db (&body body)
   `(postmodern:with-connection *db-connection-parameters*
@@ -114,16 +113,17 @@ This is something you should never really need to run."
 This will revert all migrations that have been run with a migration-number greater than <version>.
 The migrations are downgraded from the greatest available migration-number, to the lowest.
 When no version is given, 0 is assumed as that will clear the database (migration_schema will continue to exist)."
-  `(progn ,@(loop for migration in (sort (copy-list *migrations*) '> :key 'migration-number) collect
-		 `(if (and ,(<= version (migration-number migration)) (schema-has-migration-p ,migration))
-		      (run-migration ,migration T T)))))
+  (loop for migration in (sort (copy-list *migrations*) '> :key 'migration-number) collect
+       (when (and (<= version (migration-number migration))
+		  (schema-has-migration-p migration))
+	 (run-migration migration T T))))
 
 (defmacro upgrade (&optional (version nil))
   "Upgrades the database to the given version.
 This will run all migrations that haven't been ran yet and that have a smaller migration-number than <version>.
 The migrations are upgraded from the smallest available migration-number to the largest available one (with a cap on <version>).
 When no version is given, all available migrations are executed."
-  `(progn ,@(loop for migration in (sort (copy-list *migrations*) '< :key 'migration-number) collect
-		 `(if (and (not (schema-has-migration-p ,migration))
-			   ,(or (not version) (>= version (migration-number migration))))
-		      (run-migration ,migration nil T)))))
+  (loop for migration in (sort (copy-list *migrations*) '< :key 'migration-number) collect
+       (when (and (not (schema-has-migration-p migration))
+		  (or (not version) (>= version (migration-number migration))))
+	 (run-migration migration nil T))))
